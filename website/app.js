@@ -1,14 +1,14 @@
 /* Global Variables */
 let zipcode = null;
 let feelings = "";
-let baseURL = "http://api.openweathermap.org/data/2.5/weather?zip=";  // zip=94040,us
-let apiKey = "&appid=8e9ebf06026c35df6438d11c7015ff23";
+const baseURL = "http://api.openweathermap.org/data/2.5/weather?zip=";  // zip=94040,us
+const apiKey = "&appid=8e9ebf06026c35df6438d11c7015ff23&units=imperial";
 const genBtn = document.querySelector("#generate");
 let updatingDiv = document.querySelector("#entryHolder");
 
 // Create a new date instance dynamically with JS
 let d = new Date();
-let newDate = d.getMonth() + "." + d.getDate() + "." + d.getFullYear();
+let newDate = d.getMonth() + 1 + "." + d.getDate() + "." + d.getFullYear();
 
 // API GET Request Function
 const getWeather = async (baseURL, zipcode, key) => {
@@ -45,20 +45,19 @@ const updateUI = async () => {
   const request = await fetch("/all");
   try {
     const allData = await request.json();
-    const mostRecent = allData.pop();
 
     // Updaing the Entry Div
     document.querySelector(
       "#entryHolder #date"
-    ).innerText = `date: ${mostRecent.date}`;
+    ).innerHTML = `date: ${allData.date}`;
 
     document.querySelector(
       "#entryHolder #temp"
-    ).innerText = `temp: ${mostRecent.temperature}`;
+    ).innerHTML = `temp: ${allData.temperature}`;
 
     document.querySelector(
       "#entryHolder #content"
-    ).innerText = `content: ${mostRecent.userResponse}`;
+    ).innerHTML = `content: ${allData.userResponse}`;
     
   } catch (error) {
     console.log("error", error);
@@ -71,14 +70,12 @@ genBtn.addEventListener("click", function (e) {
   zipcode = document.querySelector('#zip').value;
   // zipcode = "94040,us";
   feelings = document.querySelector("#feelings").value;
-  console.log(feelings);
   getWeather(baseURL, zipcode, apiKey)
     .then(function (data) {
       postData("/newEntry", {
         temperature: data,
         date: newDate,
         userResponse: feelings
-      });
-    })
-    .then(updateUI());
+      }).then(updateUI());
+    });
 });
